@@ -1,0 +1,1 @@
+python3 test.py --ckpt pillar_logs/checkpoints/epoch_te30.pth --pc_path ../../dataset/DATASETS/KITTI/real_kitti/training/velodyne_reduced/000015.bin --calib_path ../../dataset/DATASETS/KITTI/training/calib/000015.txt --img_path ../../dataset/DATASETS/KITTI/real_kitti/training/image_2/000015.png --gt_path ../../dataset/DATASETS/KITTI/real_kitti/training/label_2/000015.txt
