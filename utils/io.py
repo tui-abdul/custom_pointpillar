@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import pickle
-
+import open3d as o3d
 
 def read_pickle(file_path, suffix='.pkl'):
     assert os.path.splitext(file_path)[1] == suffix
@@ -22,6 +22,38 @@ def read_points(file_path, dim=4):
         return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
     else:
         raise NotImplementedError
+
+def read_points_with_inverse_rotation(file_path,rotation_matrix ,dim=3):
+    """
+    Read point cloud data from a .pcd file and apply the inverse 
+    of a predefined rotation matrix.
+
+    Args:
+        file_path (str): Path to the .pcd file.
+        dim (int): Number of dimensions to return (default 3: x, y, z).
+
+    Returns:
+        np.ndarray: Transformed array of points with shape (N, dim)
+    """
+    suffix = os.path.splitext(file_path)[1].lower()
+    assert suffix == '.pcd', f"Unsupported file type: {suffix}"
+
+    # Read point cloud
+    pcd = o3d.io.read_point_cloud(file_path)
+    points = np.asarray(pcd.points)
+
+    # Inverse of rotation matrix (transpose since it's orthogonal)
+    inv_rotation = rotation_matrix.T
+
+    # Apply inverse rotation only on xyz
+    points_rotated = points @ inv_rotation.T
+
+    # If dim > 3, pad with zeros
+    if dim > 3:
+        points_rotated = np.hstack([points_rotated, np.zeros((points_rotated.shape[0], dim - 3))])
+
+    return points_rotated
+
 
 
 def write_points(lidar_points, file_path):

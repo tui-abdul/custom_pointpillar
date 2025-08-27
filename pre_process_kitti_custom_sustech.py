@@ -8,10 +8,16 @@ import sys
 CUR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(CUR)
 
-from utils import read_points, write_points, read_calib, read_label, \
+from utils import read_points, read_points_with_inverse_rotation ,write_points, read_calib, read_label, \
     write_pickle, remove_outside_points, get_points_num_in_bbox_custom, \
     points_in_bboxes_v3
 
+
+rotation_matrix = np.array([
+    [ 0.95148668,  0.00724281, -0.30760468],
+    [ 0.00724281,  0.99891868,  0.04592391],
+    [ 0.30760468, -0.04592391,  0.95040536]
+])
 
 def judge_difficulty(annotation_dict):
     truncated = annotation_dict['truncated']
@@ -64,7 +70,8 @@ def create_data_info_pkl(data_root, data_type, prefix, label=True, db=False):
         #calib_dict = read_calib(calib_path)
         #cur_info_dict['calib'] = calib_dict
 
-        lidar_points = read_points(lidar_path)
+        #lidar_points = read_points(lidar_path)
+        lidar_points = read_points_with_inverse_rotation(lidar_path,rotation_matrix)
         '''
         reduced_lidar_points = remove_outside_points(
             points=lidar_points, 
