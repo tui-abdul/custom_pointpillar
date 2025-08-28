@@ -145,7 +145,7 @@ def main(args):
         if epoch  == 29:
             print("weights + model archi saved")
             #torch.save(pointpillars, os.path.join(saved_ckpt_path, f'epoch_{epoch}_full.pth'))
-            torch.save(pointpillars.state_dict(), os.path.join(saved_ckpt_path, f'epoch_te{epoch+1}.pth'))
+            torch.save(pointpillars.state_dict(), os.path.join(saved_ckpt_path, f'epoch_te2{epoch+1}.pth'))
         if epoch % 2 == 0:
             continue
         print(f"Epoch [{epoch + 1}/{epoch}]")
@@ -218,7 +218,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_root', default='/mnt/ssd1/lifa_rdata/det/kitti', 
                         help='your data root for kitti')
     parser.add_argument('--saved_path', default='pillar_logs')
-    parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--batch_size', type=int, default=8)
     parser.add_argument('--num_workers', type=int, default=4)
     parser.add_argument('--nclasses', type=int, default=3)
     parser.add_argument('--init_lr', type=float, default=0.00025)

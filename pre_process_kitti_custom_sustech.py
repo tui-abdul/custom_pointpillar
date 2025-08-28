@@ -41,7 +41,7 @@ def judge_difficulty(annotation_dict):
 def create_data_info_pkl(data_root, data_type, prefix, label=True, db=False):
     sep = os.path.sep
     print(f"Processing {data_type} data..")
-    ids_file = os.path.join(CUR, 'dataset', 'ImageSets', f'{data_type}.txt')
+    ids_file = os.path.join(CUR, 'dataset', 'ImageSets','old', f'{data_type}.txt')
     with open(ids_file, 'r') as f:
         ids = [id.strip() for id in f.readlines()]
     

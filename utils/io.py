@@ -17,53 +17,93 @@ def write_pickle(results, file_path):
 
 def read_points(file_path, dim=4):
     suffix = os.path.splitext(file_path)[1] 
-    assert suffix in ['.bin', '.ply']
+    assert suffix in ['.bin', '.ply',".pcd"]
     if suffix == '.bin':
         return np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
+    
+    elif suffix in ['.ply', '.pcd']:
+        pcd = o3d.io.read_point_cloud(file_path)
+        points = np.asarray(pcd.points)
+        # if dim > 3 and colors exist, append them
+        if dim > 3:
+            if np.asarray(pcd.colors).size != 0:
+                colors = np.asarray(pcd.colors)
+                points = np.hstack([points, colors])
+            else:
+                # pad with zeros if no color
+                points = np.hstack([points, np.zeros((points.shape[0], dim-3))])
+        return points
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Unsupported file format: {suffix}")
 
-def read_points_with_inverse_rotation(file_path,rotation_matrix ,dim=3):
+import os
+import numpy as np
+
+def read_points_with_inverse_rotation(file_path, rotation_matrix, dim=4):
     """
-    Read point cloud data from a .pcd file and apply the inverse 
+    Read point cloud data from a .bin file and apply the inverse 
     of a predefined rotation matrix.
 
     Args:
-        file_path (str): Path to the .pcd file.
+        file_path (str): Path to the .bin file.
+        rotation_matrix (np.ndarray): 3x3 rotation matrix.
         dim (int): Number of dimensions to return (default 3: x, y, z).
 
     Returns:
         np.ndarray: Transformed array of points with shape (N, dim)
     """
     suffix = os.path.splitext(file_path)[1].lower()
-    assert suffix == '.pcd', f"Unsupported file type: {suffix}"
+    assert suffix == '.bin', f"Unsupported file type: {suffix}"
 
-    # Read point cloud
-    pcd = o3d.io.read_point_cloud(file_path)
-    points = np.asarray(pcd.points)
+    # Read binary file as float32
+    points = np.fromfile(file_path, dtype=np.float32).reshape(-1, dim)
 
     # Inverse of rotation matrix (transpose since it's orthogonal)
     inv_rotation = rotation_matrix.T
 
     # Apply inverse rotation only on xyz
-    points_rotated = points @ inv_rotation.T
+    points_rotated = points[:, :3] @ inv_rotation.T
 
-    # If dim > 3, pad with zeros
+    # If dim > 3, keep extra channels or pad with zeros
     if dim > 3:
-        points_rotated = np.hstack([points_rotated, np.zeros((points_rotated.shape[0], dim - 3))])
+        if points.shape[1] >= dim:
+            points_rotated = np.hstack([points_rotated, points[:, 3:dim]])
+        else:
+            points_rotated = np.hstack([points_rotated, np.zeros((points_rotated.shape[0], dim - 3))])
 
     return points_rotated
 
 
 
+
+
 def write_points(lidar_points, file_path):
-    suffix = os.path.splitext(file_path)[1] 
-    assert suffix in ['.bin', '.ply']
+    """
+    Write point cloud data to a file, supporting .bin, .ply, .pcd.
+    Ensures points are float32 to avoid type issues.
+    """
+    # Convert to float32
+    lidar_points = lidar_points.astype(np.float32)
+
+    suffix = os.path.splitext(file_path)[1].lower()
+    assert suffix in ['.bin', '.ply', '.pcd']
+
     if suffix == '.bin':
-        with open(file_path, 'w') as f:
-            lidar_points.tofile(f)
+        # write as binary float32
+        lidar_points.tofile(file_path)
+
+    elif suffix in ['.ply', '.pcd']:
+        # create Open3D point cloud
+        pcd = o3d.geometry.PointCloud()
+        pcd.points = o3d.utility.Vector3dVector(lidar_points[:, :3])
+        points = np.asarray(pcd.points, dtype=np.float32)
+        points.tofile(file_path)
+
+        #o3d.io.write_point_cloud(file_path, pcd)
+
     else:
-        raise NotImplementedError
+        raise NotImplementedError(f"Unsupported file format: {suffix}")
+
 
 
 def read_calib(file_path, extend_matrix=True):

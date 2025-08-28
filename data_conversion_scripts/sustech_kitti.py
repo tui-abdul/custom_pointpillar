@@ -1,11 +1,17 @@
 import json
 import os
-
+from conversion_script import *
 # Map SUSTech object types to KITTI
 TYPE_MAP = {
     "car": "car",
-    "motorcycle": "motorcycle"  # Or "cyclist" if preferred
+    "motorcycle": "cyclist"  # Or "cyclist" if preferred
 }
+
+rotation_matrix = np.array([
+    [ 0.95148668,  0.00724281, -0.30760468],
+    [ 0.00724281,  0.99891868,  0.04592391],
+    [ 0.30760468, -0.04592391,  0.95040536]
+])
 
 def sustech_to_kitti_all_angles(json_data):
     lines = []
@@ -15,17 +21,18 @@ def sustech_to_kitti_all_angles(json_data):
         pos = psr['position']
         rot = psr['rotation']
         scale = psr['scale']
+        yaw,center = transform_bbox(rotation_matrix, rot, pos)
         
         # KITTI-like format with all three rotation values
-        line = f"{obj_type} 0 0 0 0 0 0 0 {scale['z']} {scale['y']} {scale['x']} {pos['x']} {pos['y']} {pos['z']} {rot['x']} {rot['y']} {rot['z']}"
+        line = f"{obj_type} 0 0 0 0 0 0 0 {scale['x']} {scale['y']} {scale['z']} {center[0]} {center[1]} {center[2]} {yaw}"
         lines.append(line)
     return lines
 
 # Folder containing JSON files
-json_folder = "/mnt/sda/Abdul_Haq/dataset_first_21/20250814_3d&2d/sunny/sequence_1/lidar_point_cloud_0"  # adjust if needed
+json_folder = "/mnt/sda/Abdul_Haq/dataset_first_21/20250814_3d&2d/sunny/sequence_3/lidar_point_cloud_0"  # adjust if needed
 
 # Folder to save output txt files
-output_folder = "../../dataset_local/intersection_data_21/sunny/sequence_1/label_2"
+output_folder = "../../dataset_local/intersection_data_21/sunny/sequence_3/training/label_2"
 os.makedirs(output_folder, exist_ok=True)  # create folder if it doesn't exist
 
 # List all JSON files in folder

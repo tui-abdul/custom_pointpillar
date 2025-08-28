@@ -4,9 +4,7 @@ import open3d as o3d
 # -----------------------------
 # User inputs
 # -----------------------------
-#pcd_file = "/mnt/sda/Abdul_Haq/intersection_dataset/sunny/sequence_1/lidar_point_cloud_0/1.pcd"
-
-pcd_file = "../dataset_local/intersection_data_21/sunny/sequence_1/training/velodyne/141.pcd"
+pcd_file = "/mnt/sda/Abdul_Haq/intersection_dataset/sunny/sequence_1/lidar_point_cloud_0/1.pcd"
 
 bbox_position = np.array([11.305885822912918, -18.217732301430257, 1.6990770818492196])
 bbox_scale    = np.array([3.9612818032346797, 1.9517761240434666, 1.4908074495563661])

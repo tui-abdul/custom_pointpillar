@@ -171,9 +171,9 @@ def bbox3d2corners_custom(bboxes):
            ^ z   x            6 ------ 5
            |   /             / |     / |
            |  /             2 -|---- 1 |   
-    y      | /              |  |     | | 
+    y      | /              |  |  0  | | 
     <------|o               | 7 -----| 4
-                            |/   o   |/    
+                            |/       |/    
                             3 ------ 0 
     x: front, y: left, z: top
     '''
